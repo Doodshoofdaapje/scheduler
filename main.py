@@ -34,7 +34,7 @@ def create_graph(people, tasks):
         vertices.append(vertex)
 
         # connect all tasks to the sink
-        edges.append(Edge(vertex, sink, 1, 0))
+        edges.append(Edge(vertex, sink, tasks[task], 0))
 
     # create all person vertices 
     for person in people:
@@ -122,7 +122,7 @@ def assign_tasks(max_flow_graph, people):
 def create_schedule():
     input_file_name = "input.txt"
     data = load_data(input_file_name)
-    tasks = ["bar1", "bar2", "keuken", "gardarobe", "bekers", "deur"]
+    tasks = {"bar1" : 3, "bar2" : 2, "keuken" : 2, "gardarobe" : 3, "bekers" : 3, "deur" : 2}
 
     amount_of_shifts = 4
     for i in range(amount_of_shifts):
