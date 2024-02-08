@@ -4,17 +4,68 @@ class Graph:
 
     def __init__(self, vertices, edges):
         self.vertices = vertices
-        self.edges = edges
+        self.connections = {}
+
+        for vertex in self.vertices:
+            self.connections[vertex.get_label()] = []
+
+        for edge in edges:
+            self.connections[edge.source_vertex.get_label()].append(edge)
     
+    # Gets edge if it exists
+    def get_edge(self, source, sink):
+        for edge in self.get_edges_by_vertex(source.get_label()):
+            if edge.sink_vertex.get_label() == sink.get_label():
+                return edge
+        return None
+
+    def get_edges(self):
+        edges = []
+        for connection in self.connections.values():
+            edges += connection
+        return edges
+
+    # Gets vertex if it exists
+    def get_vertex(self, label):
+        for vertex in self.vertices:
+            if vertex.get_label() == label:
+                return vertex
+        return None
+
+    def get_vertex_labels(self):
+        labels = [vertex.get_label() for vertex in self.vertices]
+        return labels
+
+    # Gets the all outgoing edges from a vertex
+    def get_edges_by_vertex(self, label):
+        outgoing_edges = [edge for edge in self.connections[label] if edge.capacity != 0]
+        return outgoing_edges
+
+    # Increases flow along a path
+    def increase_flow(self, path):
+        bottleneck_edge = min(path, key=lambda x: x.capacity)
+        for residual_edge in path:
+            edge = self.get_edge(residual_edge.source_vertex, residual_edge.sink_vertex)
+            if edge is not None:
+                edge.increase_flow(bottleneck_edge.capacity)
+            else:
+                edge.increase_flow(-bottleneck_edge.capacity)
+        return
+
     # computes the residual flow network of the graph.
     def get_residual_network(self):
         residual_vertices = self.vertices
         residual_edges = []
 
-        for edge in self.edges:
-            vertex1 = edge.vertex1
-            vertex2 = edge.vertex2
-            residual_edges.append(Edge(vertex1, vertex2, edge.capacity - edge.flow, 0))
-            residual_edges.append(Edge(vertex2, vertex1, edge.flow, 0))
+        for edge in self.get_edges():
+            source = edge.source_vertex
+            sink = edge.sink_vertex
+            residual_edges.append(Edge(source, sink, edge.capacity - edge.flow, 0))
+            residual_edges.append(Edge(sink, source, edge.flow, 0))
 
+        return Graph(residual_vertices, residual_edges)
+    
+    def print(self):
+        for edge in self.get_edges():
+            edge.print()
         return

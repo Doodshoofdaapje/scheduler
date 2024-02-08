@@ -1,4 +1,2 @@
 Boris|bar1, bar2, keuken, bekers
 Bas|bar1, bar2, keuken, bekers
-Floor|bar1, bar2, deur, bekers
-Rick|bar1, bar2, deur, bekers
