@@ -25,6 +25,9 @@ class Graph:
             edges += connection
         return edges
 
+    def remove_edge(self, edge):
+        self.connections[edge.source_vertex.get_label()].remove(edge)
+
     # Gets vertex if it exists
     def get_vertex(self, label):
         for vertex in self.vertices:

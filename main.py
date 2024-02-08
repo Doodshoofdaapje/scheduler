@@ -104,25 +104,44 @@ def ford_fulkerson(graph):
         
         previous_vertices, shortest_path = dijkstras_algorithm(residual_network)
         if "sink" not in previous_vertices:
+            #print(" --------- FINAL GRAPH --------- ")
+            #graph.print()
             break
         augmenting_path = get_augmenting_path(graph, previous_vertices)
         graph.increase_flow(augmenting_path)
-        
 
-        
-def main():
+def assign_tasks(max_flow_graph, people):
+    for person in people:
+        assigned_edges = [edge for edge in max_flow_graph.get_edges_by_vertex(person.name) if edge.flow != 0]
+        for edge in assigned_edges:
+            task = edge.sink_vertex.get_label()
+            person.assign_task(task)
+            max_flow_graph.remove_edge(edge)
+    return 
+
+def create_schedule():
     input_file_name = "input.txt"
+    data = load_data(input_file_name)
     tasks = ["bar1", "bar2", "keuken", "gardarobe", "bekers", "deur"]
 
-    data = load_data(input_file_name)
-    
-    graph = create_graph(data, tasks)
-    print(" --------- INIT GRAPH --------- ")
-    graph.print()
-    ford_fulkerson(graph)
-    print(" --------- FINAL GRAPH --------- ")
-    graph.print()
+    amount_of_shifts = 4
+    for i in range(amount_of_shifts):
+        graph = create_graph(data, tasks)
+        ford_fulkerson(graph)
 
+        non_negative_edges = [edge for edge in graph.get_edges_by_vertex("source") if edge.flow != 0]
+        while len(non_negative_edges) != len(data):
+            #add random edge
+            ford_fulkerson(graph)
+
+        assign_tasks(graph, data)
+
+    for person in data:
+        person.print_assignment()
+
+def main():
+    create_schedule()
+    
     
 if __name__ == "__main__":
     main()
