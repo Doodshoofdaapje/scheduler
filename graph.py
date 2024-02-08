@@ -25,6 +25,12 @@ class Graph:
             edges += connection
         return edges
 
+    def add_edge(self, source, sink, capacity, flow):
+        v1 = self.get_vertex(source)
+        v2 = self.get_vertex(sink)
+        edge = Edge(v1, v2, capacity, flow)
+        self.connections[source].append(edge)
+
     def remove_edge(self, edge):
         self.connections[edge.source_vertex.get_label()].remove(edge)
 

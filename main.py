@@ -1,3 +1,4 @@
+import random
 import sys
 import time
 from person import Person
@@ -37,7 +38,9 @@ def create_graph(people, tasks):
         edges.append(Edge(vertex, sink, tasks[task], 0))
 
     # create all person vertices 
-    for person in people:
+    person_pick_list = people.copy()
+    while person_pick_list:
+        person = random.choice(person_pick_list)
         person_vertex = Vertex(person.name)
         vertices.append(person_vertex)
 
@@ -45,9 +48,13 @@ def create_graph(people, tasks):
         edges.append(Edge(source, person_vertex, 1, 0))
 
         # add edges between person and preferences
-        for vertex in vertices:
-            if vertex.label in person.preferences:
-                edges.append(Edge(person_vertex, vertex, 1, 0))
+        task_pick_list = [vertex for vertex in vertices if vertex.label in person.preferences]
+        while task_pick_list:
+            task = random.choice(task_pick_list)
+            edges.append(Edge(person_vertex, task, 1, 0))
+            task_pick_list.remove(task)
+
+        person_pick_list.remove(person)
 
     return Graph(vertices, edges)
 
@@ -119,19 +126,34 @@ def assign_tasks(max_flow_graph, people):
             max_flow_graph.remove_edge(edge)
     return 
 
+def add_random_edge(graph, people, tasks):
+    for task in tasks:
+        edge = graph.get_edges_by_vertex(task)[0] # Should only have 1 outgoing edge
+        if edge.capacity != edge.flow:
+            unluck_person = random.choice(people)
+            graph.add_edge(unluck_person.name, task, 1, 0)
+            print(unluck_person.name + " got fucked.")
+    return
+
+# REQUIREMENT: Amount of people should equal amount of tasks
 def create_schedule():
     input_file_name = "input.txt"
+
+    # TODO Add person data for every shift
     data = load_data(input_file_name)
-    tasks = {"bar1" : 3, "bar2" : 2, "keuken" : 2, "gardarobe" : 3, "bekers" : 3, "deur" : 2}
+    tasks = [{"bar1" : 3, "bar2" : 2, "keuken" : 2, "gardarobe" : 3, "bekers" : 3, "deur" : 2},
+             {"bar1" : 3, "bar2" : 2, "keuken" : 2, "gardarobe" : 3, "bekers" : 3, "deur" : 2},
+             {"bar1" : 3, "bar2" : 2, "keuken" : 2, "gardarobe" : 3, "bekers" : 3, "deur" : 2},
+             {"bar1" : 3, "bar2" : 2, "keuken" : 2, "gardarobe" : 3, "bekers" : 3, "deur" : 2}]
 
     amount_of_shifts = 4
     for i in range(amount_of_shifts):
-        graph = create_graph(data, tasks)
+        graph = create_graph(data, tasks[i])
         ford_fulkerson(graph)
 
         non_negative_edges = [edge for edge in graph.get_edges_by_vertex("source") if edge.flow != 0]
         while len(non_negative_edges) != len(data):
-            #add random edge
+            add_random_edge(graph, data, tasks[i])
             ford_fulkerson(graph)
 
         assign_tasks(graph, data)
