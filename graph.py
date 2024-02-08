@@ -14,7 +14,7 @@ class Graph:
     
     # Gets edge if it exists
     def get_edge(self, source, sink):
-        for edge in self.get_edges_by_vertex(source.get_label()):
+        for edge in self.get_reachable_edges(source.get_label()):
             if edge.sink_vertex.get_label() == sink.get_label():
                 return edge
         return None
@@ -46,9 +46,12 @@ class Graph:
         return labels
 
     # Gets the all outgoing edges from a vertex
-    def get_edges_by_vertex(self, label):
+    def get_reachable_edges(self, label):
         outgoing_edges = [edge for edge in self.connections[label] if edge.capacity != 0]
         return outgoing_edges
+
+    def get_outgoing_edges(self, label):
+        return self.connections[label]
 
     # Increases flow along a path
     def increase_flow(self, path):
@@ -58,7 +61,8 @@ class Graph:
             if edge is not None:
                 edge.increase_flow(bottleneck_edge.capacity)
             else:
-                edge.increase_flow(-bottleneck_edge.capacity)
+                edge = self.get_edge(residual_edge.sink_vertex, residual_edge.source_vertex)
+                edge.increase_flow(-abs(bottleneck_edge.capacity))
         return
 
     # computes the residual flow network of the graph.

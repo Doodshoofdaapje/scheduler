@@ -4,7 +4,7 @@ class Person:
         self.name = name
         self.preferences = preferences
         self.assigned_tasks = []
-        self.unlucky = 0
+        self.unlucky_count = 0
 
     def print(self):
         print(self.name + " has preferences ")
@@ -13,7 +13,7 @@ class Person:
     def assign_task(self, task):
         self.assigned_tasks.append(task)
         if task not in self.preferences:
-            self.unlucky += 1
+            self.unlucky_count += 1
             return
         self.preferences.remove(task)
 
