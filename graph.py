@@ -106,6 +106,10 @@ class FlowGraph:
         edges = [edge for edge in self.edges if edge.source_vertex.label == vertex_label1 and edge.sink_vertex.label == vertex_label2]
         return next(iter(edges), None)
     
+    def get_outgoing_edges(self, vertex_label):
+        outgoing_edges = [edge for edge in self.edges if edge.source_vertex.label == vertex_label]
+        return outgoing_edges
+
     def get_reachable_edges(self, vertex_label):
         """
         Retrieves the non zero outgoing edges from the specified vertex.
@@ -145,6 +149,11 @@ class FlowGraph:
         
         self.edges.remove(edge)
         return True
+
+    def is_max_flow(self):
+        outgoing_edges = [edge for edge in self.get_reachable_edges("source")]
+        completed_edges = [edge for edge in self.get_reachable_edges("source") if edge.flow == edge.capacity]
+        return len(outgoing_edges) == len(completed_edges)
 
     def increase_flow(self, path):
         """

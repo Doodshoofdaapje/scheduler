@@ -13,9 +13,11 @@ class Person:
     def assign_task(self, task):
         self.assigned_tasks.append(task)
         if task not in self.preferences:
+            print(self.name + " got unlucky with " + task)
             self.unlucky_count += 1
-            return
+            return 1
         self.preferences.remove(task)
+        return 0
 
     def print_assignment(self):
         tasks_as_string = " ".join(self.assigned_tasks)
