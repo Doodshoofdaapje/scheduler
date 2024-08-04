@@ -13,10 +13,10 @@ def create_schedule():
 
     # TODO Add person data for every shift
     people = parse_data(input_file_name)
-    tasks = [{"bar1" : 3, "bar2" : 1, "keuken" : 0, "gardarobe" : 3, "bekers" : 2, "deur" : 1},
-             {"bar1" : 3, "bar2" : 1, "keuken" : 1, "gardarobe" : 2, "bekers" : 2, "deur" : 1},
-             {"bar1" : 3, "bar2" : 1, "keuken" : 1, "gardarobe" : 2, "bekers" : 2, "deur" : 1},
-             {"bar1" : 3, "bar2" : 1, "keuken" : 0, "gardarobe" : 3, "bekers" : 2, "deur" : 1}]
+    tasks = [{"bar1" : 1, "bar2" : 1, "keuken" : 0, "gardarobe" : 0, "bekers" : 0, "deur" : 0},
+             {"bar1" : 1, "bar2" : 0, "keuken" : 1, "gardarobe" : 0, "bekers" : 0, "deur" : 0},
+             {"bar1" : 1, "bar2" : 0, "keuken" : 0, "gardarobe" : 0, "bekers" : 1, "deur" : 0},
+             {"bar1" : 1, "bar2" : 1, "keuken" : 0, "gardarobe" : 0, "bekers" : 0, "deur" : 0}]
 
     amount_of_shifts = 4
     preference_faults = 0
