@@ -64,10 +64,10 @@ def find_unlucky_person(graph, people, task, preference_faults):
         return None
 
     unlucky_person = random.choice(unlucky_candidates)
-    possible_tasks = graph.get_outgoing_edges(unlucky_person)
+    possible_tasks = graph.get_outgoing_edges(unlucky_person.name)
     while task in possible_tasks:
         unlucky_person = random.choice(unlucky_candidates)
-        possible_tasks = graph.get_outgoing_edges(unlucky_person)
+        possible_tasks = graph.get_outgoing_edges(unlucky_person.name)
 
     return unlucky_person
 

@@ -4,8 +4,10 @@ from vertex import Vertex
 class FlowGraph:
 
     def __init__(self):
-        self.vertices = []
-        self.edges = []
+        # Vertices are stored in a dictionary, using their labels as the key
+        self._vertices = {}
+        # Edges are stored as an adjacency list, this reduces search spaces to |V| rather than |E|
+        self._edges = {}
 
     def add_vertex(self, label):
         """
@@ -17,7 +19,8 @@ class FlowGraph:
         Label of the vertex to add.
         """
         vertex = Vertex(label)
-        self.vertices.append(vertex)
+        self._vertices[label] = vertex
+        self._edges[label] = []
 
     def get_vertex(self, label):
         """
@@ -33,8 +36,7 @@ class FlowGraph:
         Vertex or None
         The vertex with the specified label, if found; otherwise, returns None.
         """
-        vertices = [vertex for vertex in self.vertices if vertex.label == label]
-        return next(iter(vertices), None)
+        return self._vertices.get(label, None)
     
     def get_vertex_labels(self):
         """
@@ -45,8 +47,7 @@ class FlowGraph:
         list of str
             A list containing the labels of all vertices in the graph.
         """
-        labels = [vertex.label for vertex in self.vertices]
-        return labels
+        return list(self._vertices.keys())
 
     def add_edge(self, vertex_label1, vertex_label2, capacity, flow):
         """
@@ -84,7 +85,7 @@ class FlowGraph:
         flow = min(flow, capacity)
 
         edge = Edge(v1, v2, capacity, flow)
-        self.edges.append(edge)
+        self._edges[v1.label].append(edge)
         return True
     
     def get_edge(self, vertex_label1, vertex_label2):
@@ -103,12 +104,12 @@ class FlowGraph:
         Edge or None
             The edge between the specified vertices, if found; otherwise, returns None.
         """
-        edges = [edge for edge in self.edges if edge.source_vertex.label == vertex_label1 and edge.sink_vertex.label == vertex_label2]
+        possible_edges = self.get_outgoing_edges(vertex_label1)
+        edges = [edge for edge in possible_edges if edge.sink_vertex.label == vertex_label2]
         return next(iter(edges), None)
     
     def get_outgoing_edges(self, vertex_label):
-        outgoing_edges = [edge for edge in self.edges if edge.source_vertex.label == vertex_label]
-        return outgoing_edges
+        return self._edges[vertex_label]
 
     def get_reachable_edges(self, vertex_label):
         """
@@ -124,7 +125,7 @@ class FlowGraph:
         list of Edge
             A list of outgoing edges from the specified vertex, excluding edges with zero capacity.
         """
-        outgoing_edges = [edge for edge in self.edges if edge.source_vertex.label == vertex_label and edge.capacity != 0]
+        outgoing_edges = [edge for edge in self.get_outgoing_edges(vertex_label) if edge.capacity != 0]
         return outgoing_edges
 
     def delete_edge(self, vertex_label1, vertex_label2):
@@ -147,7 +148,7 @@ class FlowGraph:
         if edge is None:
             return False
         
-        self.edges.remove(edge)
+        self._edges[vertex_label1].remove(edge)
         return True
 
     def is_max_flow(self):
@@ -195,14 +196,18 @@ class FlowGraph:
         It calculates the residual capacity of each edge and constructs the residual graph accordingly.
         """
         residual_graph = FlowGraph()
-        for vertex in self.vertices:
-            residual_graph.add_vertex(vertex.label)
+        for vertex in self.get_vertex_labels():
+            residual_graph.add_vertex(vertex)
 
-        for edge in self.edges:
-            source = edge.source_vertex
-            sink = edge.sink_vertex
-            residual_graph.add_edge(source.label, sink.label, edge.capacity - edge.flow, 0)
-            residual_graph.add_edge(sink.label, source.label, edge.flow, 0)
+        print(self._edges)
+
+        # We need to iterate over every edge in the graph
+        for vertex, edges in self._edges.items():
+            for edge in edges:
+                source = edge.source_vertex
+                sink = edge.sink_vertex
+                residual_graph.add_edge(source.label, sink.label, edge.capacity - edge.flow, 0)
+                residual_graph.add_edge(sink.label, source.label, edge.flow, 0)
 
         return residual_graph
     
