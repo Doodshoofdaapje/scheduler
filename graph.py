@@ -199,7 +199,7 @@ class FlowGraph:
         for vertex in self.get_vertex_labels():
             residual_graph.add_vertex(vertex)
 
-        print(self._edges)
+        #print(self._edges)
 
         # We need to iterate over every edge in the graph
         for vertex, edges in self._edges.items():

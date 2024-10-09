@@ -13,10 +13,10 @@ def create_schedule():
 
     # TODO Add person data for every shift
     people = parse_data(input_file_name)
-    tasks = [{"bar1" : 1, "bar2" : 1, "keuken" : 0, "gardarobe" : 0, "bekers" : 0, "deur" : 0},
-             {"bar1" : 1, "bar2" : 0, "keuken" : 1, "gardarobe" : 0, "bekers" : 0, "deur" : 0},
-             {"bar1" : 1, "bar2" : 0, "keuken" : 0, "gardarobe" : 0, "bekers" : 1, "deur" : 0},
-             {"bar1" : 1, "bar2" : 1, "keuken" : 0, "gardarobe" : 0, "bekers" : 0, "deur" : 0}]
+    tasks = [{"bar1" : 3, "bar2" : 1, "keuken" : 0, "gardarobe" : 2, "bekers" : 1, "deur" : 2, "kassa" : 1},
+             {"bar1" : 3, "bar2" : 1, "keuken" : 1, "gardarobe" : 2, "bekers" : 1, "deur" : 1, "kassa" : 1},
+             {"bar1" : 3, "bar2" : 1, "keuken" : 1, "gardarobe" : 2, "bekers" : 1, "deur" : 1, "kassa" : 1},
+             {"bar1" : 3, "bar2" : 0, "keuken" : 0, "gardarobe" : 2, "bekers" : 3, "deur" : 1, "kassa" : 1}]
 
     amount_of_shifts = 4
     preference_faults = 0
@@ -46,30 +46,47 @@ def add_random_edge(graph, people, tasks, preference_faults):
     unlucky_person = find_unlucky_person(graph, people, uncompleted_task, preference_faults)
 
     # Add edge
-    graph.add_edge(unlucky_person.name, uncompleted_task, 1, 0)
+    if unlucky_person is not None:
+        #print(unlucky_person.name + " got an edge to " + uncompleted_task)
+        graph.add_edge(unlucky_person.name, uncompleted_task, 1, 0)
 
 def find_uncomplete_task(graph, tasks):
-    for task in tasks:
-        edge = graph.get_outgoing_edges(task)[0] # Only has 1 outgoing edge
-
-        # Check if the task has enough people assigned
-        if edge.capacity != edge.flow:
-            return task
-    
-    return None
+    uncompleted_tasks = [task for task in tasks if graph.get_outgoing_edges(task)[0].capacity != graph.get_outgoing_edges(task)[0].flow]
+    task = random.choice(uncompleted_tasks)
+    return task
 
 def find_unlucky_person(graph, people, task, preference_faults):
-    unlucky_candidates = [person for person in people if person.unlucky_count <= preference_faults // len(people)]
-    if not unlucky_candidates:
-        return None
+    # Find people who have less unlucky shifts
+    candidates = [person for person in people if person.unlucky_count <= preference_faults // len(people)]
+    candidates_for_task = [person for person in candidates if task not in person.assigned_tasks]
 
-    unlucky_person = random.choice(unlucky_candidates)
-    possible_tasks = graph.get_outgoing_edges(unlucky_person.name)
-    while task in possible_tasks:
-        unlucky_person = random.choice(unlucky_candidates)
-        possible_tasks = graph.get_outgoing_edges(unlucky_person.name)
+    # First try people who havent dont the task and where lucky untill now
+    unlucky_person = pick_random_person(graph, candidates_for_task, task)
 
+    # Otherwise try people who where lucky untill now
+    if unlucky_person is None:
+        unlucky_person = pick_random_person(graph, candidates, task)
+
+    # Finally try people all people
+    if unlucky_person is None:
+            unlucky_person = pick_random_person(graph, people, task)
+    
     return unlucky_person
+
+def pick_random_person(graph, people, task):
+    attempted_people = []
+    # Attempt find a person who doesnt have the edge already from candidates
+    for i in range(len(people)):
+        # Pick random person from the list
+        unlucky_person = random.choice([person for person in people if person not in attempted_people])
+        attempted_people.append(unlucky_person)
+
+        # Check if edge already exists
+        assigned_tasks = [edge.sink_vertex.label for edge in graph.get_outgoing_edges(unlucky_person.name)]
+        if task not in assigned_tasks:
+            return unlucky_person
+        
+    return None
 
 def assign_tasks(max_flow_graph, people):
     preference_faults = 0

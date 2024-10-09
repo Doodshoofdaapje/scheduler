@@ -15,6 +15,10 @@ class Person:
         return self._preferences
     
     @property
+    def assigned_tasks(self):
+        return self._assigned_tasks
+
+    @property
     def unlucky_count(self):
         return self._unlucky_count
 
